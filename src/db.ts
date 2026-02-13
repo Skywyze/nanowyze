@@ -146,6 +146,30 @@ export function updateChatName(chatJid: string, name: string): void {
   ).run(chatJid, name, new Date().toISOString());
 }
 
+/**
+ * Update multiple chat names in a single transaction.
+ * Efficiently handles N+1 sync scenarios.
+ */
+export function updateChatNames(chats: { jid: string; name: string }[]): void {
+  if (chats.length === 0) return;
+
+  const stmt = db.prepare(
+    `
+    INSERT INTO chats (jid, name, last_message_time) VALUES (?, ?, ?)
+    ON CONFLICT(jid) DO UPDATE SET name = excluded.name
+  `,
+  );
+
+  const runUpdates = db.transaction((chatList: { jid: string; name: string }[]) => {
+    const now = new Date().toISOString();
+    for (const chat of chatList) {
+      stmt.run(chat.jid, chat.name, now);
+    }
+  });
+
+  runUpdates(chats);
+}
+
 export interface ChatInfo {
   jid: string;
   name: string;
