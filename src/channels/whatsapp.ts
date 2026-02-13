@@ -15,6 +15,7 @@ import {
   getLastGroupSync,
   setLastGroupSync,
   updateChatName,
+  updateChatNames,
 } from '../db.js';
 import { logger } from '../logger.js';
 import { Channel, OnInboundMessage, OnChatMetadata, RegisteredGroup } from '../types.js';
@@ -242,14 +243,16 @@ export class WhatsAppChannel implements Channel {
       logger.info('Syncing group metadata from WhatsApp...');
       const groups = await this.sock.groupFetchAllParticipating();
 
-      let count = 0;
+      const updates: { jid: string; name: string }[] = [];
       for (const [jid, metadata] of Object.entries(groups)) {
         if (metadata.subject) {
-          updateChatName(jid, metadata.subject);
-          count++;
+          updates.push({ jid, name: metadata.subject });
         }
       }
 
+      updateChatNames(updates);
+
+      const count = updates.length;
       setLastGroupSync();
       logger.info({ count }, 'Group metadata synced');
     } catch (err) {
