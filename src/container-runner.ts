@@ -160,7 +160,7 @@ function buildVolumeMounts(
   // Environment file directory (workaround for Apple Container -i env var bug)
   // Only expose specific auth variables needed by Claude Code, not the entire .env
   const envDir = path.join(DATA_DIR, 'env');
-  fs.mkdirSync(envDir, { recursive: true });
+  fs.mkdirSync(envDir, { recursive: true, mode: 0o700 });
   const envFile = path.join(projectRoot, '.env');
   if (fs.existsSync(envFile)) {
     const envContent = fs.readFileSync(envFile, 'utf-8');
@@ -175,6 +175,7 @@ function buildVolumeMounts(
       fs.writeFileSync(
         path.join(envDir, 'env'),
         filteredLines.join('\n') + '\n',
+        { mode: 0o600 },
       );
       mounts.push({
         hostPath: envDir,
