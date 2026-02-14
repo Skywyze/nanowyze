@@ -161,6 +161,7 @@ function buildVolumeMounts(
   // Only expose specific auth variables needed by Claude Code, not the entire .env
   const envDir = path.join(DATA_DIR, 'env');
   fs.mkdirSync(envDir, { recursive: true, mode: 0o700 });
+  fs.chmodSync(envDir, 0o700); // Ensure correct permissions even if directory already exists
   const envFile = path.join(projectRoot, '.env');
   if (fs.existsSync(envFile)) {
     const envContent = fs.readFileSync(envFile, 'utf-8');
@@ -177,6 +178,7 @@ function buildVolumeMounts(
         filteredLines.join('\n') + '\n',
         { mode: 0o600 },
       );
+      fs.chmodSync(path.join(envDir, 'env'), 0o600); // Ensure correct permissions even if file already exists
       mounts.push({
         hostPath: envDir,
         containerPath: '/workspace/env-dir',
