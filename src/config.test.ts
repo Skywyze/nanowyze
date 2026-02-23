@@ -58,7 +58,7 @@ describe('TRIGGER_PATTERN', () => {
   it('is constructed correctly with escaped name', () => {
     const escapedName = escapeRegex(ASSISTANT_NAME);
     // Use .source to check the regex pattern itself
-    // Note: TRIGGER_PATTERN is /^@Andy\b/i
+    // Note: TRIGGER_PATTERN is /^@{ASSISTANT_NAME}\b/i where {ASSISTANT_NAME} is the escaped assistant name
     expect(TRIGGER_PATTERN.source).toBe(`^@${escapedName}\\b`);
     expect(TRIGGER_PATTERN.flags).toContain('i');
   });
