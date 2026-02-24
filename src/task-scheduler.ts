@@ -36,7 +36,7 @@ async function runTask(
 ): Promise<void> {
   const startTime = Date.now();
   const groupDir = path.join(GROUPS_DIR, task.group_folder);
-  fs.mkdirSync(groupDir, { recursive: true });
+  await fs.promises.mkdir(groupDir, { recursive: true });
 
   logger.info(
     { taskId: task.id, group: task.group_folder },
